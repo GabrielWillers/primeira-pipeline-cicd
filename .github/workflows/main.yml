@@ -14,3 +14,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME}}
           password: ${{ secrets.DOCKERHUB_PASSWORD}}
+      - name: Build da imagem Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src
+          file: ./src
+          push: true
+          tags: |
+            gabrielwillers/aula-primeira-pipeline:v${{ github.run_number}}
+            gabrielwillers/aula-primeira-pipeline
