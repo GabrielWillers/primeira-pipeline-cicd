@@ -7,7 +7,7 @@ jobs:
   CI: 
     runs-on: ubuntu-latest
     steps:
-      - name: Obetendo o código
+      - name: Clonando o repositorio para dentro da "VM"
         uses: actions/checkout@v6.0.2
       - name: Docker Login
         uses: docker/login-action@v3.6.0
@@ -23,3 +23,22 @@ jobs:
           tags: |
             gabrielwillers/aula-primeira-pipeline:v${{ github.run_number}}
             gabrielwillers/aula-primeira-pipeline
+
+  CD:
+    runs-on: ubuntu-latest
+    needs: [CI]
+    steps: 
+      - name: Obetendo o código
+        uses: actions/checkout@v6.0.2
+      - name: configuracao de contexto do Kubernetes
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.K8S_CONFIG}} #Conteudo do KubeConfig la da Nuvem
+      - name: execucao do manifesto
+        uses: Azure/k8s-deploy@v5
+        with:
+          manifests: |
+              ./k8s/deployment.yaml
+          images: |
+            gabrielwillers/aula-primeira-pipeline:v${{ github.run_number}} # Bater o mesmo do deployment
